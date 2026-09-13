@@ -1,0 +1,45 @@
+name: Build Panda Vault APK
+
+on:
+push:
+branches:
+- main
+- master
+
+workflow_dispatch:
+
+jobs:
+build:
+name: Build Android APK
+runs-on: ubuntu-latest
+
+steps:
+  - name: Checkout source code
+    uses: actions/checkout@v4
+
+  - name: Set up JDK 17
+    uses: actions/setup-java@v4
+    with:
+      distribution: temurin
+      java-version: '17'
+
+  - name: Setup Gradle
+    uses: gradle/actions/setup-gradle@v4
+
+  - name: Make Gradle executable
+    run: chmod +x gradlew
+
+  - name: Build Debug APK
+    run: ./gradlew assembleDebug --stacktrace
+
+  - name: Find APK
+    run: |
+      echo "APK files:"
+      find app/build/outputs/apk -type f -name "*.apk" -print
+
+  - name: Upload APK
+    uses: actions/upload-artifact@v4
+    with:
+      name: Panda-Vault-APK
+      path: app/build/outputs/apk/**/*.apk
+      if-no-files-found: error
